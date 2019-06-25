@@ -1,19 +1,15 @@
 package rpn;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class CLI {
-    public static final void main(String[] args) {
-        String expression = Stream.of(args).collect(Collectors.joining(" "));
+    public static void main(String[] args) {
+        InMemoryBus bus = new InMemoryBus();
 
-        try {
-            String result = Polish.evaluate(expression);
+        bus.subscribe("expression", new TokenizerConsumer(bus));
+        bus.subscribe("+", new TokenizerConsumer(bus));
+        bus.subscribe("-", new TokenizerConsumer(bus));
+        bus.subscribe("*", new TokenizerConsumer(bus));
+        bus.subscribe("/", new TokenizerConsumer(bus));
 
-            System.out.println("About to evaluate '" + expression + "'");
-            System.out.println("> " + result);
-        } catch (ArithmeticException e) {
-            e.printStackTrace();
-        }
+        bus.publish(new ExpressionMessage(args[0]));
     }
 }
